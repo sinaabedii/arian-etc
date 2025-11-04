@@ -34,7 +34,7 @@ const partners = [
   },
   {
     id: 6,
-    name: 'شرکت پتروشیمی',
+    name: 'شرکت پترو',
     logo: 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
     category: 'صنعتی'
   }

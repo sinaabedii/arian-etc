@@ -9,11 +9,10 @@ const HeroSection: React.FC = () => {
           <div className="space-y-8">
             <div>
               <h1 className="text-4xl lg:text-5xl font-display font-bold text-neutral-800 mb-6">
-                درباره آرین ای تی سی
+                درباره لومینا
               </h1>
               <p className="text-lg text-neutral-600 leading-relaxed">
-                ما در آرین ای تی سی با بیش از دو دهه تجربه در صنعت محصولات نظافتی و ضدعفونی، 
-                پیشرو در ارائه راه‌حل‌های نوآورانه و با کیفیت برای نیازهای مختلف مشتریان هستیم.
+                لومینا یک فروشگاه جامع آنلاین است که برای راحتی شما هزاران محصول در دسته‌بندی‌های مختلف از جمله مواد غذایی، لوازم خانگی، پوشاک، لوازم الکترونیکی و بسیاری دیگر را با بهترین قیمت و کیفیت ارائه می‌دهد.
               </p>
             </div>
             
@@ -41,7 +40,7 @@ const HeroSection: React.FC = () => {
             <div className="relative h-96 lg:h-[500px] rounded-2xl overflow-hidden">
               <Image
                 src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt="درباره آرین ای تی سی"
+                alt="درباره لومینا"
                 fill
                 className="object-cover"
               />

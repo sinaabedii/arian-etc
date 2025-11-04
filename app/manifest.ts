@@ -2,9 +2,9 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'آکند شیمی خزر - محصولات نظافتی و ضدعفونی',
-    short_name: 'آکند شیمی خزر',
-    description: 'فروشگاه آنلاین محصولات نظافتی و ضدعفونی حرفه‌ای',
+    name: 'لومینا - فروشگاه جامع آنلاین',
+    short_name: 'لومینا',
+    description: 'فروشگاه جامع آنلاین برای خرید محصولات متنوع',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

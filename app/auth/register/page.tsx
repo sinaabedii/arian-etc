@@ -11,7 +11,7 @@ import Card from '@/components/ui/Card';
 const backgroundImages = [
   {
     url: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
-    title: 'عضویت در خانواده بزرگ آرین ای تی سی'
+    title: 'عضویت در خانواده بزرگ لومینا'
   },
   {
     url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
@@ -160,14 +160,14 @@ export default function RegisterPage() {
                   <div className="relative w-full h-full">
                     <Image
                       src="/images/logo (3).png"
-                      alt="آرین ای تی سی"
+                      alt="لومینا"
                       fill
                       className="object-contain"
                     />
                   </div>
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-display font-bold mb-4">
-                  آرین ای تی سی
+                  لومینا
                 </h1>
                 <p className="text-xl lg:text-2xl font-light mb-8 opacity-90">
                   {image.title}
@@ -200,24 +200,24 @@ export default function RegisterPage() {
               <div className="relative w-full h-full">
                 <Image
                   src="/images/logo (3).png"
-                  alt="آرین ای تی سی"
+                  alt="لومینا"
                   fill
                   className="object-contain"
                 />
               </div>
             </div>
             <h2 className="text-3xl font-display font-bold text-neutral-800">
-              آرین ای تی سی
+              لومینا
             </h2>
             <p className="mt-2 text-neutral-600">
-              محصولات مفید و اعتیادآور
+              فروشگاه جامع آنلاین
             </p>
           </div>
 
           {/* Desktop Header */}
           <div className="text-center hidden lg:block">
             <h2 className="text-3xl font-display font-bold text-neutral-800">
-              ثبت نام در آرین ای تی سی
+              ثبت نام در لومینا
             </h2>
             <p className="mt-2 text-neutral-600">
               حساب کاربری جدید ایجاد کنید

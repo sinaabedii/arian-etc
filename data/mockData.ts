@@ -10,11 +10,11 @@ import {
 } from '@/types';
 
 export const heroData: HeroData = {
-  title: "راهکارهای پیشرفته نظافت و ضدعفونی",
-  subtitle: "محصولات نظافتی حرفه‌ای که میکروب‌ها، باکتری‌ها و ویروس‌ها را از بین می‌برند و برای استفاده روزمره ایمن هستند",
-  description: "ما محصولات نظافتی و ضدعفونی با کیفیت بالا برای خانه‌ها، ادارات و مراکز درمانی تولید می‌کنیم. راهکارهای ما حفاظت برتر در برابر عوامل بیماری‌زا فراهم می‌کند.",
-  cta: "مشاهده محصولات",
-  backgroundImage: "https://images.unsplash.com/photo-1563453392212-326f5e854473?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+  title: "لومینا - فروشگاه جامع آنلاین",
+  subtitle: "خرید آسان، ارسال سریع و قیمت مناسب برای هزاران محصول",
+  description: "از مواد غذایی تا لوازم خانگی، از پوشاک تا الکترونیک. همه چیز در یک مکان با بهترین قیمت و کیفیت",
+  cta: "شروع خرید",
+  backgroundImage: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
 };
 
 export const navigationItems: NavigationItem[] = [
@@ -36,101 +36,142 @@ export const navigationItems: NavigationItem[] = [
 export const featuredProducts: Product[] = [
   {
     id: "1",
-    title: "اسپری ضدعفونی‌کننده اولتراکلین",
-    description: "ضدعفونی‌کننده با گرید بیمارستانی که ۹۹.۹٪ میکروب‌ها، باکتری‌ها و ویروس‌ها را در تماس از بین می‌برد",
-    price: 24.99,
-    originalPrice: 29.99,
-    image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "ضدعفونی‌کننده‌ها",
-    rating: 4.9,
-    reviews: 2847
+    title: "گوشی Samsung Galaxy S23",
+    description: "گوشی هوشمند پرچمدار با دوربین 200 مگاپیکسل و 5G",
+    price: 28500000,
+    originalPrice: 32000000,
+    image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "الکترونیکی",
+    rating: 4.8,
+    reviews: 342
   },
   {
     id: "2",
-    title: "مایع شوینده چندمنظوره پروکلین",
-    description: "پاک‌کننده قدرتمند و ایمن برای آشپزخانه، سرویس بهداشتی و تمام سطوح خانگی",
-    price: 18.99,
-    image: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "شوینده‌ها",
-    rating: 4.8,
-    reviews: 1923
+    title: "روغن زیتون ارگانیک",
+    description: "روغن زیتون تصفیه نشده درجه یک - 1 لیتر",
+    price: 450000,
+    image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "مواد غذایی",
+    rating: 4.9,
+    reviews: 876
   },
   {
     id: "3",
-    title: "دستمال مرطوب آنتی‌باکتریال سانی‌وایپس",
-    description: "دستمال‌های ضدعفونی‌کننده مناسب برای پاکسازی سریع و بهداشتی در هر زمان",
-    price: 12.99,
-    image: "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "دستمال‌ها",
+    title: "کفش ورزشی نایک",
+    description: "کفش ورزشی مردانه برای دویدن و فعالیت روزانه",
+    price: 3200000,
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "پوشاک",
     rating: 4.7,
-    reviews: 5621
+    reviews: 521
   },
   {
     id: "4",
-    title: "چربی‌بر صنعتی قوی",
-    description: "چربی‌بر قدرتمند مناسب آشپزخانه‌های صنعتی و مصارف نظافتی حرفه‌ای",
-    price: 45.99,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "صنعتی",
+    title: "ماشین لباسشویی سامسونگ",
+    description: "ماشین لباسشویی 8 کیلویی با تکنولوژی Eco Bubble",
+    price: 15800000,
+    image: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "لوازم خانگی",
     rating: 4.6,
-    reviews: 892
+    reviews: 198
+  },
+  {
+    id: "5",
+    title: "قهوه فوری نسکافه",
+    description: "قهوه فوری گلد 200 گرمی با طعم ملایم",
+    price: 285000,
+    originalPrice: 320000,
+    image: "https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "مواد غذایی",
+    rating: 4.5,
+    reviews: 1243
+  },
+  {
+    id: "6",
+    title: "هدفون بی‌سیم سونی",
+    description: "هدفون بلوتوثی با کنترل نویز و باتری 30 ساعته",
+    price: 6500000,
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "الکترونیکی",
+    rating: 4.8,
+    reviews: 412
   }
 ];
 
 export const bestSellingProducts: Product[] = [
   {
-    id: "5",
-    title: "شوینده کف با گرید بیمارستانی",
-    description: "محلول حرفه‌ای شست‌وشوی کف مورد استفاده در بیمارستان‌ها و مراکز درمانی",
-    price: 89.99,
-    originalPrice: 109.99,
-    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "سلامت و بهداشت",
-    rating: 4.9,
-    reviews: 3421
+    id: "7",
+    title: "تی‌شرت مردانه کتان",
+    description: "تی‌شرت کتان خنک و راحت برای تابستان",
+    price: 450000,
+    originalPrice: 580000,
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "پوشاک",
+    rating: 4.6,
+    reviews: 632
   },
   {
-    id: "6",
-    title: "شیشه‌پاک‌کن دوستدار محیط‌زیست",
-    description: "شیشه‌پاک‌کن بدون رد و لک با ترکیبات طبیعی، امن برای منزل و محیط کار",
-    price: 15.99,
-    image: "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    category: "محصولات سبز",
+    id: "8",
+    title: "میکروویو پاناسونیک",
+    description: "میکروویو دیجیتال 28 لیتری با گریل",
+    price: 4200000,
+    image: "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "لوازم خانگی",
+    rating: 4.7,
+    reviews: 287
+  },
+  {
+    id: "9",
+    title: "کتاب رمان عشق",
+    description: "کتاب پرفروش سال با ترجمه فارسی روان",
+    price: 180000,
+    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "کتاب",
+    rating: 4.9,
+    reviews: 1456
+  },
+  {
+    id: "10",
+    title: "برنج هاشمی محلی",
+    description: "برنج درجه یک هاشمی گیلان - 10 کیلو",
+    price: 850000,
+    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    category: "مواد غذایی",
     rating: 4.8,
-    reviews: 1876
+    reviews: 923
   }
 ];
 
 export const features: Feature[] = [
   {
-    title: "از بین بردن ۹۹.۹٪ میکروب‌ها",
-    description: "محصولات ما به‌صورت علمی تأیید شده‌اند که باکتری‌ها و ویروس‌های مضر را از بین می‌برند",
+    title: "ارسال سریع و رایگان",
+    description: "ارسال رایگان برای خریدهای بالای 500 هزار تومان به سراسر کشور",
     icon: "https://cdn-icons-png.flaticon.com/512/2920/2920277.png"
   },
   {
-    title: "ایمن و بدون سم",
-    description: "تمام محصولات در صورت استفاده صحیح برای کودکان و حیوانات خانگی ایمن هستند",
+    title: "تضمین اصالت کالا",
+    description: "تمام محصولات اورجینال و با ضمانت بازگشت 7 روزه",
     icon: "https://cdn-icons-png.flaticon.com/512/1828/1828640.png"
   },
   {
-    title: "کیفیت حرفه‌ای",
-    description: "راهکارهای نظافتی تأییدشده برای بیمارستان‌ها و مراکز درمانی",
+    title: "پشتیبانی 24/7",
+    description: "تیم پشتیبانی ما همیشه آماده پاسخگویی به سوالات شماست",
     icon: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
   },
   {
-    title: "فرمول سریع‌اثر",
-    description: "فرمولاسیون‌هایی با اثرگذاری سریع در چند ثانیه، نه چند دقیقه",
+    title: "پرداخت امن",
+    description: "پرداخت آنلاین با تمام کارت‌های بانکی و درگاه امن",
     icon: "https://cdn-icons-png.flaticon.com/512/1067/1067566.png"
   }
 ];
 
 export const companyInfo: CompanyInfo = {
-  name: "Arian ETC",
-  logo: "https://images.unsplash.com/photo-1563453392212-326f5e854473?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
-  description: "تولیدکننده پیشرو محصولات نظافتی و ضدعفونی با کیفیت حرفه‌ای. ارائه‌دهنده راهکارهای ایمن و مؤثر برای منازل، ادارات و مراکز درمانی.",
-  address: "تهران، خیابان مثال، پلاک ۱۲۳",
-  phone: "+98 21 1234 5678",
-  email: "info@arianetc.com"
+  name: "لومینا",
+  logo: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+  description: "فروشگاه جامع آنلاین لومینا - خرید آسان مواد غذایی، لوازم خانگی، پوشاک، الکترونیکی و هزاران محصول دیگر با بهترین قیمت",
+  address: "تهران، میدان ونک، برج لومینا، طبقه 12",
+  phone: "+98 21 9876 5432",
+  email: "info@luminastore.com"
 };
 
 export const footerSections: FooterSection[] = [
@@ -146,9 +187,10 @@ export const footerSections: FooterSection[] = [
   {
     title: "دسته‌بندی‌ها",
     links: [
-      { label: "شوینده‌ها", href: "#" },
-      { label: "ضدعفونی‌کننده‌ها", href: "#" },
-      { label: "همه", href: "#" }
+      { label: "مواد غذایی", href: "/products?category=food" },
+      { label: "لوازم خانگی", href: "/products?category=home" },
+      { label: "پوشاک", href: "/products?category=fashion" },
+      { label: "الکترونیکی", href: "/products?category=electronics" }
     ]
   },
   {
@@ -182,20 +224,20 @@ export const socialLinks: SocialLink[] = [
 export const testimonials: TestimonialData[] = [
   {
     id: "1",
-    name: "دکتر سارا رضایی",
-    role: "متخصص بهداشت و سلامت",
-    company: "دانشگاه علوم پزشکی",
-    content: "محصولات Arian ETC طراحی فوق‌العاده‌ای دارند. کیفیت بالای ساخت و اثربخشی واقعی در بهداشت روزمره کاملاً محسوس است.",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    name: "مریم احمدی",
+    role: "خریدار لومینا",
+    company: "تهران",
+    content: "از تنوع محصولات و سرعت ارسال لومینا واقعاً راضی هستم. قیمت‌ها هم خیلی مناسب‌تر از فروشگاه‌های دیگه است.",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
     rating: 5
   },
   {
     id: "2",
-    name: "امیر محمدی",
-    role: "مدیر تدارکات",
-    company: "شرکت بازرگانی آریا",
-    content: "از محصولات نظافتی Arian ETC برای مجموعه اداری‌مان استفاده می‌کنیم. هم صرفه اقتصادی دارد و هم کیفیت بالایی ارائه می‌دهد.",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    name: "رضا کریمی",
+    role: "خریدار لومینا",
+    company: "اصفهان",
+    content: "بهترین فروشگاه آنلاین! محصولات با کیفیت، ارسال سریع و پشتیبانی عالی. همیشه از لومینا خرید می‌کنم.",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
     rating: 5
   }
 ];

@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       product.title,
       ...product.tags,
       product.category,
-      'آکند شیمی خزر',
+      '  ',
       'محصولات نظافتی',
       'ضدعفونی کننده',
       'خرید آنلاین'
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
           alt: product.title,
         },
       ],
-      siteName: 'آکند شیمی خزر',
+      siteName: '  ',
     },
     twitter: {
       card: 'summary_large_image',
@@ -108,11 +108,11 @@ const ProductDetailPage: React.FC<ProductPageProps> = ({ params }) => {
     image: product.images,
     brand: {
       '@type': 'Brand',
-      name: 'آکند شیمی خزر',
+      name: '  ',
     },
     manufacturer: {
       '@type': 'Organization',
-      name: 'آکند شیمی خزر',
+      name: '  ',
     },
     category: product.category,
     offers: {
@@ -123,7 +123,7 @@ const ProductDetailPage: React.FC<ProductPageProps> = ({ params }) => {
       availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'Organization',
-        name: 'آکند شیمی خزر',
+        name: '  ',
       },
     },
     aggregateRating: product.reviews.length > 0 ? {

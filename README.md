@@ -1,28 +1,27 @@
-# AkandChimiKHazar - Useful & Addictive Product Innovation
+# Lumina (لومینا) - فروشگاه جامع آنلاین
 
-A complete, responsive website showcasing products that are both incredibly useful and naturally addictive. Built with Next.js 14, TypeScript, and Tailwind CSS, featuring behavioral design principles and comprehensive product detail pages.
+فروشگاه جامع آنلاین لومینا - خرید مواد غذایی، لوازم خانگی، پوشاک، لوازم الکترونیکی و هزاران محصول دیگر. ساخته شده با Next.js 14, TypeScript و Tailwind CSS.
 
-## 🚀 Features
+## 🚀 ویژگی‌ها
 
-### Landing Page
-- **Behavioral design focus** on useful and addictive products
-- **Responsive design** (mobile-first, breakpoints: sm, md, lg, xl)
-- **Modern UI components** with consistent design system
-- **Hero section** showcasing product innovation philosophy
-- **Product features** highlighting behavioral psychology principles
-- **Expert testimonials** from psychologists and tech professionals
-- **Newsletter signup** for product updates
+### صفحه اصلی
+- **طراحی مدرن و رسپانسیو** (mobile-first)
+- **دسته‌بندی محصولات** به صورت جامع
+- **Hero section** جذاب و حرفه‌ای
+- **سیستم جستجو** پیشرفته
+- **فیلترینگ محصولات** بر اساس دسته، قیمت، برند
+- **سبد خرید و Wishlist** کامل
+- **چت بات هوشمند** برای پشتیبانی
 
-### Product Detail Pages
-- **Dynamic routing** with `/products/[slug]`
-- **Image gallery** with thumbnail navigation
-- **Product specifications** table
-- **Customer reviews** with star ratings
-- **Review submission** form (console logging)
-- **Video demo** integration (YouTube embed)
-- **Consultation request** form (collapsible)
+### صفحات جزئیات محصول
+- **Dynamic routing** با `/products/[slug]`
+- **گالری تصاویر** با thumbnail navigation
+- **جدول مشخصات** کامل
+- **نظرات کاربران** با امتیازدهی ستاره‌ای
+- **فرم ثبت نظر**
+- **مقایسه محصولات**
 - **Breadcrumb navigation**
-- **SEO optimized** with metadata
+- **SEO بهینه‌سازی شده**
 
 ### Technical Features
 - **TypeScript strict mode** for type safety
@@ -33,14 +32,15 @@ A complete, responsive website showcasing products that are both incredibly usef
 - **Accessibility** features (ARIA labels, semantic HTML)
 - **Performance optimized** with Next.js Image component
 
-## 🛠 Tech Stack
+## 🛠 فناوری‌های استفاده شده
 
 - **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS v3.4+
-- **Images**: Next.js Image component with external URLs
-- **Icons**: SVG icons and external icon libraries
-- **Fonts**: Inter (body) + Poppins (headings) from Google Fonts
+- **زبان**: TypeScript (strict mode)
+- **استایل**: Tailwind CSS v3.4+
+- **State Management**: Zustand + Context API
+- **تصاویر**: Next.js Image component
+- **آیکون‌ها**: Lucide React
+- **فونت‌ها**: فونت فارسی IRANSans
 
 ## 📁 Project Structure
 
@@ -86,13 +86,13 @@ tailwind.config.ts     # Tailwind configuration
 next.config.js         # Next.js configuration
 ```
 
-## 🎨 Design System
+## 🎨 سیستم طراحی
 
-### Colors
-- **Primary**: `#315a39` (Green) - Main brand color
-- **Secondary**: Blue tones for accents
-- **Neutral**: Gray scale for text and backgrounds
-- **Accent**: Coral and navy for highlights
+### رنگ‌ها
+- **Primary**: `#0066cc` (Blue) - رنگ اصلی برند
+- **Secondary**: سبز و نارنجی برای Accents
+- **Neutral**: Gray scale برای متن و پس‌زمینه
+- **Success**: سبز برای موفقیت‌آمیز
 
 ### Typography
 - **Body**: Inter font family
@@ -246,19 +246,16 @@ images: {
 - **Optimized bundle** with tree shaking
 - **Static generation** for product pages
 
-## 🧠 Product Philosophy
+## 🛒 دسته‌بندی محصولات
 
-### Useful & Addictive Design Principles
-- **Behavioral Psychology**: Products engineered using scientific principles of habit formation
-- **Positive Addiction**: Creating engagement patterns that improve users' lives
-- **Instant Gratification**: Immediate feedback systems that reward and motivate
-- **Continuous Innovation**: Products that adapt and evolve with user behavior
-
-### Target Products
-- **Productivity Tools**: Habit trackers, focus enhancers, workflow optimizers
-- **Cognitive Enhancement**: Devices and apps that improve mental performance
-- **Wellness Technology**: Sleep optimization, meditation aids, stress reduction
-- **Smart Environments**: Adaptive spaces that respond to user needs
+### محصولات موجود
+- **🛒 مواد غذایی**: مواد خوراکی، نوشیدنی، میوه و سبزیجات، لبنیات
+- **🏠 لوازم خانگی**: وسایل آشپزخانه، لوازم حمام، دکوراسیون، وسایل برقی
+- **👕 پوشاک و کفش**: لباس مردانه، زنانه، کودک، کفش و کیف
+- **💻 لوازم الکترونیکی**: موبایل، لپ‌تاپ، تبلت، لوازم جانبی
+- **✨ زیبایی و بهداشت**: محصولات آرایشی، بهداشت فردی، عطر
+- **📚 کتاب و لوازم التحریر**: کتاب، لوازم التحریر، هنر
+- **🏃 ورزش و سرگرمی**: لوازم ورزشی، اسباب‌بازی
 
 ## 🔍 SEO
 
@@ -293,13 +290,18 @@ npm run dev
 open http://localhost:3000
 ```
 
-### Available Routes
-- `/` - Landing page showcasing useful & addictive products
-- `/products` - Product catalog with behavioral design focus
-- `/products/habittracker-pro` - Smart habit formation device
-- `/products/focusflow-headphones` - Cognitive enhancement headphones
+### مسیرهای موجود
+- `/` - صفحه اصلی
+- `/products` - لیست محصولات
+- `/products/[slug]` - جزئیات محصول
+- `/cart` - سبد خرید
+- `/wishlist` - لیست علاقه‌مندی‌ها
+- `/checkout` - تسویه حساب
+- `/dashboard` - پنل کاربری
+- `/about` - درباره ما
+- `/contact` - تماس با ما
 
 ---
 
-**Built with ❤️ using Next.js, TypeScript, and Tailwind CSS**  
-**Designed with 🧠 behavioral psychology and addiction science principles**
+**ساخته شده با ❤️ توسط Next.js, TypeScript و Tailwind CSS**  
+**لومینا - فروشگاه جامع آنلاین 🛒**

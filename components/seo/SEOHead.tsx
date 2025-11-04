@@ -19,7 +19,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   structuredData,
   noIndex = false,
 }) => {
-  const fullTitle = title ? `${title} | آکند شیمی خزر` : 'آکند شیمی خزر - محصولات نظافتی و ضدعفونی حرفه‌ای';
+  const fullTitle = title ? `${title} | لومینا` : 'لومینا - فروشگاه جامع آنلاین';
   
   return (
     <Head>
@@ -39,7 +39,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       {description && <meta property="og:description" content={description} />}
       <meta property="og:type" content="website" />
       <meta property="og:locale" content="fa_IR" />
-      <meta property="og:site_name" content="آکند شیمی خزر" />
+      <meta property="og:site_name" content="  " />
       {ogImage && <meta property="og:image" content={ogImage} />}
       {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
       
@@ -50,8 +50,8 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       {ogImage && <meta name="twitter:image" content={ogImage} />}
       
       {/* Additional SEO Tags */}
-      <meta name="author" content="آکند شیمی خزر" />
-      <meta name="publisher" content="آکند شیمی خزر" />
+      <meta name="author" content="  " />
+      <meta name="publisher" content="  " />
       <meta name="language" content="Persian" />
       <meta name="revisit-after" content="7 days" />
       

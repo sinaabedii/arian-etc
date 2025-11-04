@@ -1,6 +1,6 @@
 {
-  "name": "arian-etc",
-  "description": "Arian ETC - فروشگاه محصولات نظافتی و ضدعفونی",
+  "name": "lumina",
+  "description": "Lumina - فروشگاه جامع آنلاین (مواد غذایی، لوازم خانگی و بیشتر)",
   "version": "0.1.0",
   "private": true,
   "scripts": {

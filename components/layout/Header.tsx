@@ -25,7 +25,7 @@ const Header: React.FC = () => {
             <div className="relative w-10 h-10 lg:w-12 lg:h-12">
               <Image
                 src="/images/logo (3).png"
-                alt="آرین ای تی سی"
+                alt="لومینا"
                 fill
                 className="object-contain"
                 priority
@@ -33,10 +33,10 @@ const Header: React.FC = () => {
             </div>
             <div className="hidden sm:flex flex-col">
               <span className="font-display font-bold text-lg lg:text-xl text-neutral-800 leading-tight">
-                آرین ای تی سی
+                لومینا
               </span>
               <span className="text-xs lg:text-sm text-neutral-500 leading-tight">
-                محصولات مفید و اعتیادآور
+                فروشگاه جامع آنلاین
               </span>
             </div>
           </Link>
