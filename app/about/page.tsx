@@ -2,65 +2,38 @@ import React from 'react';
 import { Metadata } from 'next';
 import HeroSection from '@/components/about/HeroSection';
 import ValuesSection from '@/components/about/ValuesSection';
-import TeamSection from '@/components/about/TeamSection';
 
 export const metadata: Metadata = {
-  title: 'درباره ما',
-  description: 'آشنایی با لومینا - فروشگاه جامع آنلاین برای خرید مواد غذایی، لوازم خانگی، پوشاک و هزاران محصول دیگر. خرید آسان، قیمت مناسب و ارسال سریع.',
+  title: 'درباره ما - فروشگاه آنلاین لومینا',
+  description: 'آشنایی با لومینا - فروشگاه جامع آنلاین با بیش از 100,000 محصول متنوع. خرید آسان، قیمت مناسب، کیفیت تضمینی و ارسال سریع در سراسر کشور.',
   keywords: [
     'درباره لومینا',
     'فروشگاه آنلاین',
-    'تولیدکننده محصولات نظافتی',
-    'شرکت ضدعفونی',
-    'نظافت حرفه‌ای',
-    'EPA approved',
-    'استاندارد بیمارستانی',
-    'تیم متخصص',
-    'کیفیت حرفه‌ای'
+    'خرید اینترنتی',
+    'فروشگاه اینترنتی',
+    'خرید آنلاین',
+    'لومینا شاپ',
+    'ارسال رایگان',
+    'قیمت مناسب',
+    'کیفیت تضمینی'
   ],
   openGraph: {
-    title: 'درباره   ',
-    description: 'تولیدکننده پیشرو محصولات نظافتی و ضدعفونی حرفه‌ای با بیش از 10 سال تجربه',
+    title: 'درباره فروشگاه آنلاین لومینا',
+    description: 'بیش از 10 سال تجربه در ارائه بهترین محصولات با کیفیت تضمینی و ارسال سریع',
     images: ['/images/about-og.jpg'],
   },
   alternates: {
-    canonical: 'https://akandchimi.com/about',
+    canonical: 'https://lumina-shop.com/about',
   },
 };
 
-const teamMembers = [
-  {
-    name: 'دکتر سارا جانسون',
-    role: 'مدیر عامل',
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'بیش از 15 سال تجربه در مهندسی  و توسعه محصول'
-  },
-  {
-    name: 'مایکل چن',
-    role: 'رئیس تحقیق و توسعه',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'دکترای  با تخصص در فرمولاسیون‌های ضدمیکروبی'
-  },
-  {
-    name: 'امیلی رودریگز',
-    role: 'مدیر تضمین کیفیت',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'متخصص انطباق با مقررات و استانداردهای ایمنی'
-  },
-  {
-    name: 'دیوید کیم',
-    role: 'مدیر عملیات',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'تعالی در تولید و بهینه‌سازی زنجیره تأمین'
-  }
-];
+
 
 const AboutPage: React.FC = () => {
   return (
     <div className="min-h-screen">
       <HeroSection />
       <ValuesSection />
-      <TeamSection teamMembers={teamMembers} />
     </div>
   );
 };

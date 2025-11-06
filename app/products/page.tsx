@@ -1,36 +1,33 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { mockProductDetails } from '@/data/mockProducts';
 import ProductsClient from './ProductsClient';
 
 // Metadata for Products page
 export const metadata: Metadata = {
-  title: 'محصولات',
-  description: 'مجموعه کامل محصولات لومینا - مواد غذایی، لوازم خانگی، پوشاک، لوازم الکترونیکی و هزاران محصول دیگر. خرید آنلاین با بهترین قیمت و کیفیت.',
+  title: 'محصولات - فروشگاه آنلاین لومینا',
+  description: 'مجموعه کامل محصولات لومینا - الکترونیک، پوشاک، لوازم خانگی، مواد غذایی و هزاران محصول دیگر. خرید آنلاین با بهترین قیمت، کیفیت تضمین شده و ارسال رایگان.',
   keywords: [
     'محصولات لومینا',
     'خرید آنلاین',
+    'فروشگاه اینترنتی',
+    'الکترونیک',
+    'پوشاک',
+    'لوازم خانگی',
     'مواد غذایی',
-    'محصولات بهداشتی',
-    'EPA approved',
-    'استاندارد بیمارستانی',
-    'نظافت صنعتی',
-    '  '
+    'ارسال رایگان'
   ],
   openGraph: {
-    title: 'محصولات نظافتی و ضدعفونی   ',
-    description: 'مجموعه کامل محصولات نظافتی و ضدعفونی با کیفیت حرفه‌ای و مجوز EPA',
+    title: 'محصولات فروشگاه آنلاین لومینا',
+    description: 'هزاران محصول با کیفیت، قیمت مناسب و ارسال سریع',
     images: ['/images/products-og.jpg'],
   },
   alternates: {
-    canonical: 'https://akandchimi.com/products',
+    canonical: 'https://lumina-shop.com/products',
   },
 };
 
-const ProductsPage = async () => {
-  // Server Component: fetch or read products data here if needed
-  const products = mockProductDetails;
-  return <ProductsClient products={products} />;
+const ProductsPage = () => {
+  return <ProductsClient />;
 };
 
 export default ProductsPage;

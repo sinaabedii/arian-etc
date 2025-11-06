@@ -1,54 +1,18 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  company?: string;
-  role: "admin" | "customer";
-  avatar?: string;
-}
+import { authService } from "@/lib/auth-service";
+import { TokenManager } from "@/lib/token-manager";
+import type { User } from "@/types/auth";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (user: User, rememberMe?: boolean) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
+  refreshUser: () => void;
 }
-
-// Mock users for demonstration
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    company: "Acme Corp",
-    role: "customer",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
-  },
-  {
-    id: "2",
-    name: "Admin User",
-    email: "admin@akandchimi.com",
-    company: "AkandChimiKHazar",
-    role: "admin",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
-  },
-  {
-    id: "3",
-    name: "علی احمدی",
-    email: "test@test.com",
-    company: "شرکت تست",
-    role: "customer",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
-  },
-];
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -59,38 +23,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user data on mount
-    const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (storedUser) {
+    // Check for stored user data and token on mount
+    const initAuth = async () => {
       try {
-        setUser(JSON.parse(storedUser));
+        const storedUser = TokenManager.getUserData();
+        const hasToken = TokenManager.isAuthenticated();
+
+        if (storedUser && hasToken) {
+          // Try to auto-refresh token if expired
+          const isValid = await authService.autoRefreshToken();
+          
+          if (isValid) {
+            setUser(storedUser);
+          } else {
+            // Token refresh failed, clear everything
+            TokenManager.clearAll();
+            setUser(null);
+          }
+        } else {
+          // No valid session
+          TokenManager.clearAll();
+          setUser(null);
+        }
       } catch (error) {
-        console.error("Error parsing stored user data:", error);
-        localStorage.removeItem("user");
-        sessionStorage.removeItem("user");
+        console.error("Error initializing auth:", error);
+        TokenManager.clearAll();
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const login = (user: User, rememberMe: boolean = false) => {
     setUser(user);
-    if (rememberMe) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      sessionStorage.setItem("user", JSON.stringify(user));
-    }
+    TokenManager.setUserData(user, rememberMe);
     
-    // انتقال داده‌های سبد خرید و علاقه‌مندی‌ها به حساب کاربری
-    // این کار در واقعیت باید از طریق API انجام شود
-    console.log("User logged in, cart and wishlist data should be synced with user account");
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("user");
-    // Don't redirect automatically - let components handle this
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint
+      await authService.logout();
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      // Clear local state and storage regardless of API call result
+      setUser(null);
+      TokenManager.clearAll();
+    }
+  };
+
+  const refreshUser = () => {
+    const storedUser = TokenManager.getUserData();
+    if (storedUser) {
+      setUser(storedUser);
+    }
   };
 
   const value = {
@@ -99,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     login,
     logout,
     isAuthenticated: !!user,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { authService } from '@/lib/auth-service';
+import { TokenManager } from '@/lib/token-manager';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
@@ -31,7 +33,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
+    national_id: '',
     password: '',
     rememberMe: false,
   });
@@ -64,10 +66,10 @@ export default function LoginPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.email) {
-      newErrors.email = 'ایمیل الزامی است';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'فرمت ایمیل صحیح نیست';
+    if (!formData.national_id) {
+      newErrors.national_id = 'کد ملی الزامی است';
+    } else if (!/^\d{10}$/.test(formData.national_id)) {
+      newErrors.national_id = 'کد ملی باید 10 رقم باشد';
     }
 
     if (!formData.password) {
@@ -88,21 +90,32 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      // Mock login - در واقعیت باید با API ارتباط برقرار کنید
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await authService.login({
+        national_id: formData.national_id,
+        password: formData.password,
+      });
       
-      const mockUser = {
-        id: '1',
-        name: 'کاربر نمونه',
-        email: formData.email,
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
-        role: 'customer' as const
-      };
-      
-      login(mockUser, formData.rememberMe);
-      router.push('/dashboard');
-    } catch (error) {
-      setErrors({ general: 'خطا در ورود. لطفاً دوباره تلاش کنید.' });
+      if (response.success && response.data) {
+        // Store tokens
+        TokenManager.setAccessToken(response.data.access, formData.rememberMe);
+        TokenManager.setRefreshToken(response.data.refresh, formData.rememberMe);
+        
+        // Create user object from response or use default
+        const user = response.data.user || {
+          id: formData.national_id,
+          name: 'کاربر',
+          email: '',
+          national_id: formData.national_id,
+          role: 'customer' as const
+        };
+        
+        login(user, formData.rememberMe);
+        router.push('/dashboard');
+      } else {
+        setErrors({ general: response.error?.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.' });
+      }
+    } catch (error: any) {
+      setErrors({ general: error.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.' });
     } finally {
       setIsLoading(false);
     }
@@ -130,15 +143,15 @@ export default function LoginPage() {
                 <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 p-3">
                   <div className="relative w-full h-full">
                     <Image
-                      src="/images/logo (3).png"
-                      alt="آرین ای تی سی"
+                      src="/images/Logo.png"
+                      alt="لومینا"
                       fill
                       className="object-contain"
                     />
                   </div>
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-display font-bold mb-4">
-                  آرین ای تی سی
+                  لومینا
                 </h1>
                 <p className="text-xl lg:text-2xl font-light mb-8 opacity-90">
                   {image.title}
@@ -170,15 +183,15 @@ export default function LoginPage() {
             <div className="w-20 h-20 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg p-3">
               <div className="relative w-full h-full">
                 <Image
-                  src="/images/logo (3).png"
-                  alt="آرین ای تی سی"
+                  src="/images/Logo.png"
+                  alt="لومینا"
                   fill
                   className="object-contain"
                 />
               </div>
             </div>
             <h2 className="text-3xl font-display font-bold text-neutral-800">
-              آرین ای تی سی
+              لومینا
             </h2>
             <p className="mt-2 text-neutral-600">
               محصولات مفید و اعتیادآور
@@ -191,7 +204,7 @@ export default function LoginPage() {
               ورود به حساب کاربری
             </h2>
             <p className="mt-2 text-neutral-600">
-              به فروشگاه آرین ای تی سی خوش آمدید
+              به فروشگاه لومینا خوش آمدید
             </p>
           </div>
 
@@ -210,22 +223,23 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
-                ایمیل
+              <label htmlFor="national_id" className="block text-sm font-medium text-neutral-700 mb-2">
+                کد ملی
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
+                id="national_id"
+                name="national_id"
+                type="text"
+                value={formData.national_id}
                 onChange={handleChange}
                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                  errors.email ? 'border-red-300 bg-red-50' : 'border-neutral-300'
+                  errors.national_id ? 'border-red-300 bg-red-50' : 'border-neutral-300'
                 }`}
-                placeholder="example@email.com"
+                placeholder="کد ملی 10 رقمی"
+                maxLength={10}
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              {errors.national_id && (
+                <p className="mt-1 text-sm text-red-600">{errors.national_id}</p>
               )}
             </div>
 

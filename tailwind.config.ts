@@ -66,6 +66,20 @@ const config: Config = {
       boxShadow: {
         'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
         'medium': '0 8px 30px rgba(0, 0, 0, 0.12)',
+      },
+      animation: {
+        'slide-down': 'slideDown 0.3s ease-out',
+        'fade-in': 'fadeIn 0.3s ease-out',
+      },
+      keyframes: {
+        slideDown: {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
       }
     },
   },

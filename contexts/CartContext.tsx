@@ -1,6 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { cartService } from '@/lib/cart-service';
+import type { CartItem as ApiCartItem } from '@/types/cart';
 
 export interface CartItem {
   id: string;
@@ -10,6 +12,8 @@ export interface CartItem {
   quantity: number;
   category: string;
   slug: string;
+  // Backend cart item id (for update/remove)
+  cartItemId?: number;
 }
 
 interface CartState {
@@ -33,6 +37,9 @@ interface CartContextType {
   clearCart: () => void;
   isInCart: (id: string) => boolean;
   getItemQuantity: (id: string) => number;
+  refreshFromServer: () => Promise<void>;
+  loading: boolean;
+  error: string | null;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -134,6 +141,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     total: 0,
     itemCount: 0,
   });
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -146,6 +155,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error loading cart from localStorage:', error);
       }
     }
+    // Then hydrate from server (if authenticated, service adds auth header automatically)
+    refreshFromServer();
   }, []);
 
   // Save cart to localStorage whenever it changes
@@ -157,12 +168,38 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'ADD_ITEM', payload: item });
   };
 
-  const removeItem = (id: string) => {
+  const removeItem = async (id: string) => {
+    // optimistic
+    const prev = state.items;
+    const target = prev.find(i => i.id === id);
     dispatch({ type: 'REMOVE_ITEM', payload: id });
+    try {
+      if (target?.cartItemId) {
+        await cartService.removeCartItem(target.cartItemId);
+      }
+      await refreshFromServer();
+    } catch (e) {
+      // rollback on failure
+      dispatch({ type: 'LOAD_CART', payload: prev });
+      console.error('Failed to remove cart item on server:', e);
+    }
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = async (id: string, quantity: number) => {
+    // optimistic
+    const prev = state.items;
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
+    try {
+      const item = prev.find(i => i.id === id);
+      if (item?.cartItemId) {
+        await cartService.updateCartItem(item.cartItemId, { quantity });
+      }
+      await refreshFromServer();
+    } catch (e) {
+      // rollback on failure
+      dispatch({ type: 'LOAD_CART', payload: prev });
+      console.error('Failed to update quantity on server:', e);
+    }
   };
 
   const clearCart = () => {
@@ -178,6 +215,63 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return item ? item.quantity : 0;
   };
 
+  const mapApiItemToLocal = (api: any): CartItem => {
+    const productId = api.product_id ?? api.product?.id ?? api.id;
+    const name = api.product_name ?? api.product?.name ?? api.name ?? '';
+    const slug = api.product_slug ?? api.product?.slug ?? '';
+    // Try multiple fields for product image
+    const imageCandidate =
+      api.product_image ||
+      api.image ||
+      api.product?.image ||
+      api.product?.primary_image ||
+      api.product?.thumbnail ||
+      api.product?.image_url ||
+      (Array.isArray(api.product?.images) && api.product?.images?.[0]) ||
+      '';
+    const rawPrice = api.product_price ?? api.price ?? api.unit_price ?? 0;
+    const price = parseFloat(String(rawPrice)) || 0;
+    const quantity = api.quantity ?? 1;
+    return {
+      id: String(productId),
+      name,
+      price,
+      image: imageCandidate,
+      quantity,
+      category: '',
+      slug,
+      cartItemId: api.id ?? api.item_id,
+    };
+  };
+
+  const refreshFromServer = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await cartService.getCart(1, 100);
+      if (res.success && res.data) {
+        const data: any = res.data as any;
+        let itemsRaw: any[] = [];
+        if (Array.isArray(data)) itemsRaw = data;
+        else if (Array.isArray(data.results)) itemsRaw = data.results;
+        else if (Array.isArray(data.items)) itemsRaw = data.items;
+        else if (Array.isArray(data.cart_items)) itemsRaw = data.cart_items;
+        if (itemsRaw.length > 0) {
+          const mapped = itemsRaw.map(mapApiItemToLocal);
+          dispatch({ type: 'LOAD_CART', payload: mapped });
+        }
+      } else if (!res.success) {
+        setError(res.error?.message || 'خطا در دریافت سبد خرید');
+      }
+    } catch (e) {
+      console.error('Failed to hydrate cart from server:', e);
+      setError('خطا در برقراری ارتباط با سرور');
+    }
+    finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -188,6 +282,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         isInCart,
         getItemQuantity,
+        refreshFromServer,
+        loading,
+        error,
       }}
     >
       {children}

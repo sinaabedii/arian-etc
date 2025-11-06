@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { ReviewFormData } from '@/types';
-import Button from '@/components/ui/Button';
-import StarRating from '@/components/ui/StarRating';
+import React, { useState } from "react";
+import { ReviewFormData } from "@/types";
+import Button from "@/components/ui/Button";
+import StarRating from "@/components/ui/StarRating";
 
 interface ReviewFormProps {
   onSubmit?: (data: ReviewFormData) => void;
@@ -11,9 +11,9 @@ interface ReviewFormProps {
 
 const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState<ReviewFormData>({
-    name: '',
+    name: "",
     rating: 5,
-    comment: ''
+    comment: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -23,32 +23,41 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
     setIsSubmitting(true);
 
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    console.log('نظر جدید:', formData);
-    
     if (onSubmit) {
       onSubmit(formData);
     }
 
     setShowSuccess(true);
-    setFormData({ name: '', rating: 5, comment: '' });
+    setFormData({ name: "", rating: 5, comment: "" });
     setIsSubmitting(false);
 
     // Hide success message after 3 seconds
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  const handleInputChange = (field: keyof ReviewFormData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    field: keyof ReviewFormData,
+    value: string | number
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   if (showSuccess) {
     return (
       <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
         <div className="text-green-600 mb-2">
-          <svg className="w-8 h-8 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          <svg
+            className="w-8 h-8 mx-auto"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clipRule="evenodd"
+            />
           </svg>
         </div>
         <h3 className="text-lg font-semibold text-green-800 mb-1">
@@ -62,14 +71,18 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
-      <h3 className="text-lg font-bold text-gray-900">
-        Write Your Review
-      </h3>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6"
+    >
+      <h3 className="text-lg font-bold text-gray-900">Write Your Review</h3>
 
       {/* Name Field */}
       <div>
-        <label htmlFor="reviewName" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="reviewName"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Your Name *
         </label>
         <input
@@ -77,7 +90,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
           id="reviewName"
           required
           value={formData.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
+          onChange={(e) => handleInputChange("name", e.target.value)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
           placeholder="Enter your name"
         />
@@ -92,7 +105,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
           <StarRating
             rating={formData.rating}
             interactive
-            onRatingChange={(rating) => handleInputChange('rating', rating)}
+            onRatingChange={(rating) => handleInputChange("rating", rating)}
             size="lg"
           />
           <span className="text-sm text-gray-600">
@@ -103,7 +116,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
 
       {/* Comment Field */}
       <div>
-        <label htmlFor="reviewComment" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="reviewComment"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Your Review *
         </label>
         <textarea
@@ -111,7 +127,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
           required
           rows={4}
           value={formData.comment}
-          onChange={(e) => handleInputChange('comment', e.target.value)}
+          onChange={(e) => handleInputChange("comment", e.target.value)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
           placeholder="Write your review about this product..."
         />
@@ -123,7 +139,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
         disabled={isSubmitting}
         className="w-full sm:w-auto"
       >
-        {isSubmitting ? 'Submitting...' : 'Submit Review'}
+        {isSubmitting ? "Submitting..." : "Submit Review"}
       </Button>
     </form>
   );

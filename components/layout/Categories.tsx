@@ -1,161 +1,209 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Card from '@/components/ui/Card';
+import { categoryService } from '@/lib/category-service';
+import type { Category } from '@/types/category';
 
-const categories = [
-  {
-    id: 1,
-    title: '🛒 مواد غذایی',
-    description: 'مواد خوراکی، نوشیدنی و لبنیات',
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 850,
-    href: '/products?category=food',
-    color: 'bg-green-500',
-    icon: '🛒'
-  },
-  {
-    id: 2,
-    title: '🏠 لوازم خانگی',
-    description: 'وسایل آشپزخانه و برقی',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 620,
-    href: '/products?category=home',
-    color: 'bg-blue-500',
-    icon: '🏠'
-  },
-  {
-    id: 3,
-    title: '👕 پوشاک و کفش',
-    description: 'لباس و اکسسوری',
-    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 1240,
-    href: '/products?category=fashion',
-    color: 'bg-pink-500',
-    icon: '👕'
-  },
-  {
-    id: 4,
-    title: '💻 الکترونیکی',
-    description: 'موبایل، لپ‌تاپ و لوازم',
-    image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 580,
-    href: '/products?category=electronics',
-    color: 'bg-purple-500',
-    icon: '💻'
-  },
-  {
-    id: 5,
-    title: '✨ زیبایی و بهداشت',
-    description: 'آرایشی و بهداشتی',
-    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 390,
-    href: '/products?category=beauty',
-    color: 'bg-rose-500',
-    icon: '✨'
-  },
-  {
-    id: 6,
-    title: '📚 کتاب و لوازم التحریر',
-    description: 'کتاب و لوازم تحریر',
-    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 720,
-    href: '/products?category=books',
-    color: 'bg-amber-500',
-    icon: '📚'
-  },
-  {
-    id: 7,
-    title: '🏃 ورزش و سرگرمی',
-    description: 'لوازم ورزشی و سرگرمی',
-    image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 470,
-    href: '/products?category=sports',
-    color: 'bg-cyan-500',
-    icon: '🏃'
-  },
-  {
-    id: 8,
-    title: '🎁 هدایا و سوغات',
-    description: 'هدیه و سوغاتی',
-    image: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    productCount: 340,
-    href: '/products?category=gifts',
-    color: 'bg-red-500',
-    icon: '🎁'
-  }
+// رنگ‌های گرادیانت برای دسته‌بندی‌ها
+const gradients = [
+  'from-rose-400 via-pink-500 to-purple-600',
+  'from-blue-400 via-cyan-500 to-teal-600',
+  'from-amber-400 via-orange-500 to-red-600',
+  'from-green-400 via-emerald-500 to-teal-600',
+  'from-purple-400 via-violet-500 to-indigo-600',
+  'from-pink-400 via-rose-500 to-red-600',
+  'from-cyan-400 via-sky-500 to-blue-600',
+  'from-yellow-400 via-amber-500 to-orange-600',
 ];
 
 const Categories: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await categoryService.getCategories({ page_size: 8 });
+      
+      if (response.success && response.data) {
+        setCategories(response.data.results);
+      } else {
+        setError(response.error?.message || 'خطا در بارگذاری دسته‌بندی‌ها');
+      }
+    } catch (err) {
+      setError('خطا در بارگذاری دسته‌بندی‌ها');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getGradient = (index: number) => {
+    return gradients[index % gradients.length];
+  };
+
+  if (isLoading) {
+    return (
+      <section className="py-12 md:py-16 lg:py-24 bg-gradient-to-br from-neutral-50 via-white to-blue-50">
+        <div className="container-max section-padding">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-800 mb-4">
+              دسته‌بندی محصولات
+            </h2>
+            <p className="text-base md:text-lg text-neutral-600">
+              در حال بارگذاری...
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-neutral-200 rounded-2xl h-64"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-16 lg:py-24 bg-gradient-to-br from-neutral-50 via-white to-blue-50">
+        <div className="container-max section-padding">
+          <div className="text-center">
+            <div className="text-6xl mb-4">😕</div>
+            <h3 className="text-2xl font-bold text-neutral-900 mb-2">خطا در بارگذاری</h3>
+            <p className="text-neutral-600 mb-6">{error}</p>
+            <button
+              onClick={loadCategories}
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+            >
+              تلاش مجدد
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="py-16 lg:py-24 bg-neutral-50">
-      <div className="container-max section-padding">
-        {/* بخش عنوان */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-display font-bold text-neutral-800 mb-4">
+    <section className="py-12 md:py-16 lg:py-24 bg-gradient-to-br from-neutral-50 via-white to-blue-50 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="hidden md:block absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+      <div className="hidden md:block absolute bottom-0 left-0 w-64 md:w-96 h-64 md:h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      
+      <div className="container-max section-padding relative z-10">
+        {/* Header */}
+        <div className="text-center mb-12 lg:mb-16">
+          <div className="inline-block mb-3 md:mb-4">
+            <span className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-100 text-blue-700 rounded-full text-xs md:text-sm font-bold">
+              🛍️ دسته‌بندی‌ها
+            </span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-neutral-900 mb-3 md:mb-4">
             خرید بر اساس دسته‌بندی
           </h2>
-          <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
-            هزاران محصول در دسته‌بندی‌های مختلف برای راحتی خرید شما
+          <p className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto px-4">
+            هزاران محصول متنوع در دسته‌بندی‌های مختلف برای راحتی خرید شما
           </p>
         </div>
 
-        {/* شبکه دسته‌بندی‌ها */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {categories.map((category) => (
-            <Link key={category.id} href={category.href} className="group">
-              <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 h-full">
-                {/* تصویر دسته‌بندی */}
-                <div className="relative h-40 sm:h-48 overflow-hidden">
+        {/* Categories Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
+          {categories.map((category, index) => (
+            <Link
+              key={category.id}
+              href={`/products?category=${category.slug}`}
+              className="group"
+            >
+              <div className="relative overflow-hidden rounded-xl md:rounded-2xl bg-white shadow-md hover:shadow-2xl transition-all duration-500 hover:scale-105 h-full">
+                {/* Background Image */}
+                <div className="relative h-36 sm:h-48 md:h-56 overflow-hidden">
                   <Image
-                    src={category.image}
-                    alt={category.title}
+                    src={typeof category.image === 'string' && category.image.trim() ? category.image : 'https://images.unsplash.com/photo-1515165562835-c3b8c8c4c2f2?auto=format&fit=crop&w=800&q=60'}
+                    alt={category.name || 'دسته‌بندی'}
                     fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    unoptimized
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  {/* Gradient Overlay */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${getGradient(index)} opacity-60 group-hover:opacity-70 transition-opacity`}></div>
                   
-                  {/* بج رنگی */}
-                  <div className={`absolute top-3 right-3 w-10 h-10 sm:w-12 sm:h-12 ${category.color} rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm bg-opacity-90`}>
-                    <span className="text-xl sm:text-2xl">{category.icon}</span>
-                  </div>
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
                 </div>
 
-                {/* محتوای دسته‌بندی */}
-                <div className="p-4 sm:p-5">
-                  <h3 className="text-base sm:text-lg font-display font-bold text-neutral-800 mb-1 sm:mb-2 group-hover:text-primary-600 transition-colors line-clamp-1">
-                    {category.title}
-                  </h3>
-                  <p className="text-neutral-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
-                    {category.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs sm:text-sm text-neutral-500 font-medium">
-                      {category.productCount}+ محصول
-                    </span>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {/* Content */}
+                <div className="absolute inset-0 flex flex-col justify-end p-3 md:p-4 lg:p-6">
+                  <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-white mb-1 drop-shadow-lg">
+                      {category.name}
+                    </h3>
+                    
+                    {/* Order Badge */}
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <span className="px-2 py-0.5 md:px-3 md:py-1 bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-xs md:text-sm rounded-full font-medium">
+                        #{category.order}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Arrow Icon */}
+                  <div className="absolute top-2 left-2 md:top-4 md:left-4 w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+                    <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </div>
                 </div>
-              </Card>
+
+                {/* Glow Effect */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent"></div>
+                </div>
+              </div>
             </Link>
           ))}
         </div>
 
-        {/* مشاهده همه دکمه */}
-        <div className="text-center mt-12">
-          <Link 
+        {/* View All Button */}
+        <div className="text-center mt-8 md:mt-12 lg:mt-16">
+          <Link
             href="/products"
-            className="inline-flex items-center px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors duration-200"
+            className="group inline-flex items-center gap-2 md:gap-3 px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm md:text-base font-bold rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           >
-            مشاهده همه محصولات
-            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <span>مشاهده همه محصولات</span>
+            <svg className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+      `}</style>
     </section>
   );
 };

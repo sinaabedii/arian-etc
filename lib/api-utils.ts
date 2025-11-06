@@ -152,13 +152,11 @@ export const fileUtils = {
 export const mockFormSubmission = {
   async submitContactForm(contactData: any): Promise<MockResponse<string>> {
     await mockDelay(1000);
-    console.log('Mock contact form submission:', contactData);
     return mockSuccessResponse('Contact form submitted successfully!');
   },
 
   async subscribeNewsletter(email: string): Promise<MockResponse<string>> {
     await mockDelay(800);
-    console.log(`Mock newsletter subscription for: ${email}`);
     return mockSuccessResponse('Successfully subscribed to newsletter!');
   }
 };
@@ -166,7 +164,6 @@ export const mockFormSubmission = {
 // Logging helper
 export const logger = {
   info: (message: string, data?: any) => {
-    console.log(`[INFO] ${new Date().toISOString()} - ${message}`, data || '');
   },
 
   error: (message: string, error?: any) => {
@@ -179,7 +176,6 @@ export const logger = {
 
   debug: (message: string, data?: any) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[DEBUG] ${new Date().toISOString()} - ${message}`, data || '');
     }
   }
 };

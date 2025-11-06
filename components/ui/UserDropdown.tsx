@@ -30,7 +30,7 @@ const UserDropdown: React.FC = () => {
     ...(user.role === 'customer' ? [
       { label: 'داشبورد', href: '/dashboard', icon: '📊' },
       { label: 'سفارش‌های من', href: '/dashboard', icon: '📦' },
-      { label: 'پروفایل', href: '/dashboard', icon: '👤' },
+      { label: 'پروفایل', href: '/profile', icon: '👤' },
       { label: 'علاقه‌مندی‌ها', href: '/wishlist', icon: '❤️' },
     ] : []),
     ...(user.role === 'admin' ? [
@@ -103,9 +103,6 @@ const UserDropdown: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
                 <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                {user.company && (
-                  <p className="text-xs text-gray-400 truncate">{user.company}</p>
-                )}
               </div>
             </div>
           </div>
@@ -143,22 +140,22 @@ const UserDropdown: React.FC = () => {
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div className="fixed inset-0 z-[200] bg-black/60 grid place-items-center p-4">
+          <div className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-2xl border-2 border-white/60 shadow-2xl">
             <div className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+              <div className="flex items-center mb-5">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4 shadow">
                   <span className="text-2xl">⚠️</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">تایید خروج</h3>
-                  <p className="text-sm text-gray-600">آیا مطمئن هستید که می‌خواهید خارج شوید؟</p>
+                  <h3 className="text-xl font-bold text-neutral-900">تایید خروج</h3>
+                  <p className="text-sm text-neutral-600">آیا مطمئن هستید که می‌خواهید خارج شوید؟</p>
                 </div>
               </div>
-              <div className="flex justify-end space-x-3 space-x-reverse">
+              <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-bold text-neutral-700 bg-white/80 hover:bg-neutral-100 border border-neutral-200 rounded-xl transition-all"
                 >
                   انصراف
                 </button>
@@ -167,7 +164,7 @@ const UserDropdown: React.FC = () => {
                     setShowLogoutConfirm(false);
                     logout();
                   }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   خروج
                 </button>

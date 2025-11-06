@@ -12,16 +12,10 @@ interface Metric {
 
 // Mock web vitals functions if package is not available
 const mockMetricFunction = (callback: (metric: Metric) => void) => {
-  // In production, you would install web-vitals package
-  // npm install web-vitals
-  console.log('Web vitals package not installed. Install with: npm install web-vitals');
 };
 
 function sendToAnalytics(metric: any) {
-  // اینجا می‌توانید metrics را به Google Analytics یا سرویس دیگری ارسال کنید
-  console.log('Web Vital:', metric);
   
-  // مثال ارسال به Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
     (window as any).gtag('event', metric.name, {
       event_category: 'Web Vitals',

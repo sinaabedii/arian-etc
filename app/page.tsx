@@ -1,14 +1,11 @@
-import React from 'react';
 import { Metadata } from 'next';
 import Hero from '@/components/layout/Hero';
+import FeaturedProducts from '@/components/layout/FeaturedProducts';
+import SpecialOffers from '@/components/layout/SpecialOffers';
 import Categories from '@/components/layout/Categories';
-import Features from '@/components/layout/Features';
-import Innovation from '@/components/layout/Innovation';
 import WhyChooseUs from '@/components/layout/WhyChooseUs';
-import Stats from '@/components/layout/Stats';
 import BusinessCTA from '@/components/layout/BusinessCTA';
 import Experience from '@/components/layout/Experience';
-import Partners from '@/components/layout/Partners';
 
 export const metadata: Metadata = {
   title: 'لومینا - فروشگاه جامع آنلاین',
@@ -38,55 +35,70 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: 'https://akandchimi.com',
+    canonical: 'https://lumina-shop.com',
   },
 };
 
 // JSON-LD Structured Data
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: '  ',
-  alternateName: 'Akand Chimi Khazar',
-  url: 'https://akandchimi.com',
-  logo: 'https://akandchimi.com/images/logo.png',
-  description: 'تولیدکننده محصولات نظافتی و ضدعفونی با کیفیت حرفه‌ای و مجوز EPA',
-  foundingDate: '2010',
+  '@type': 'OnlineStore',
+  name: 'لومینا',
+  alternateName: 'Lumina',
+  url: 'https://lumina-shop.com',
+  logo: 'https://lumina-shop.com/images/Logo-saeedpay',
+  description: 'فروشگاه آنلاین لومینا - خرید آسان هزاران محصول متنوع با بهترین قیمت و ارسال سریع',
+  foundingDate: '2020',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'خیابان ولیعصر، پلاک 123',
+    streetAddress: 'تهران',
     addressLocality: 'تهران',
     addressCountry: 'IR',
   },
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+98-21-1234-5678',
+    telephone: '+98-21-0000-0000',
     contactType: 'customer service',
-    availableLanguage: ['Persian', 'English'],
+    availableLanguage: ['Persian'],
   },
   sameAs: [
-    'https://instagram.com/akandchimi',
-    'https://linkedin.com/company/akandchimi',
-    'https://t.me/akandchimi',
+    'https://instagram.com/lumina',
+    'https://telegram.me/lumina',
   ],
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
-    name: 'محصولات نظافتی و ضدعفونی',
+    name: 'محصولات متنوع لومینا',
     itemListElement: [
       {
         '@type': 'Offer',
         itemOffered: {
           '@type': 'Product',
-          name: 'ضدعفونی کننده‌های حرفه‌ای',
-          category: 'محصولات بهداشتی',
+          name: 'لوازم الکترونیکی',
+          category: 'الکترونیک',
         },
       },
       {
         '@type': 'Offer',
         itemOffered: {
           '@type': 'Product',
-          name: 'شوینده‌های صنعتی',
-          category: 'محصولات نظافتی',
+          name: 'پوشاک و مد',
+          category: 'پوشاک',
+        },
+      },
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Product',
+          name: 'لوازم خانگی',
+          category: 'خانه و آشپزخانه',
+        },
+      },
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Product',
+          name: 'مواد غذایی',
+          category: 'غذا و نوشیدنی',
         },
       },
     ],
@@ -101,14 +113,12 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
+      <FeaturedProducts />
       <Categories />
-      <Features />
-      <Innovation />
+      <SpecialOffers />
       <WhyChooseUs />
-      <Stats />
       <BusinessCTA />
       <Experience />
-      <Partners />
     </>
   );
 }

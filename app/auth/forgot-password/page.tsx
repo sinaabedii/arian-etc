@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { authService } from '@/lib/auth-service';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 
@@ -26,11 +27,18 @@ const backgroundImages = [
 ];
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
+  const [step, setStep] = useState<'phone' | 'otp' | 'password'>('phone');
+  const [formData, setFormData] = useState({
+    phone_number: '',
+    otp_code: '',
+    new_password: '',
+    confirm_password: '',
+  });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [otpTimer, setOtpTimer] = useState(0);
 
   // Auto-slide background images
   useEffect(() => {
@@ -40,16 +48,24 @@ export default function ForgotPasswordPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // OTP timer
+  useEffect(() => {
+    if (otpTimer > 0) {
+      const timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [otpTimer]);
+
+  const handleSendOTP = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     
-    if (!email) {
-      setError('ایمیل الزامی است');
+    if (!formData.phone_number) {
+      setError('شماره تلفن الزامی است');
       return;
     }
     
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('فرمت ایمیل صحیح نیست');
+    if (!/^09\d{9}$/.test(formData.phone_number)) {
+      setError('شماره تلفن معتبر نیست');
       return;
     }
 
@@ -57,11 +73,64 @@ export default function ForgotPasswordPage() {
     setError('');
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSubmitted(true);
-    } catch (error) {
-      setError('خطا در ارسال ایمیل. لطفاً دوباره تلاش کنید.');
+      const response = await authService.sendOTP({
+        phone_number: formData.phone_number,
+        purpose: 2, // Password reset
+      });
+      
+      if (response.success) {
+        setStep('otp');
+        setOtpTimer(120);
+      } else {
+        setError(response.error?.message || 'خطا در ارسال کد تایید');
+      }
+    } catch (error: any) {
+      setError(error.message || 'خطا در ارسال کد تایید');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.otp_code) {
+      setError('کد تایید الزامی است');
+      return;
+    }
+    setStep('password');
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.new_password || !formData.confirm_password) {
+      setError('لطفا رمز عبور جدید را وارد کنید');
+      return;
+    }
+    
+    if (formData.new_password !== formData.confirm_password) {
+      setError('رمز عبور و تکرار آن یکسان نیستند');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      const response = await authService.resetPassword({
+        phone_number: formData.phone_number,
+        otp_code: formData.otp_code,
+        new_password: formData.new_password,
+        confirm_password: formData.confirm_password,
+      });
+      
+      if (response.success) {
+        setIsSubmitted(true);
+      } else {
+        setError(response.error?.message || 'خطا در بازیابی رمز عبور');
+      }
+    } catch (error: any) {
+      setError(error.message || 'خطا در بازیابی رمز عبور');
     } finally {
       setIsLoading(false);
     }
@@ -112,8 +181,8 @@ export default function ForgotPasswordPage() {
               <div className="w-20 h-20 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg p-3">
                 <div className="relative w-full h-full">
                   <Image
-                    src="/images/logo (3).png"
-                    alt="آرین ای تی سی"
+                    src="/images/Logo.png"
+                    alt="لومینا"
                     fill
                     className="object-contain"
                   />
@@ -150,7 +219,7 @@ export default function ForgotPasswordPage() {
                     بررسی ایمیل خود کنید
                   </h3>
                   <p className="text-sm text-neutral-600">
-                    ایمیل حاوی لینک بازیابی به آدرس <span className="font-medium text-neutral-800">{email}</span> ارسال شد.
+                    رمز عبور شما با موفقیت تغییر کرد.
                   </p>
                 </div>
                 
@@ -204,15 +273,15 @@ export default function ForgotPasswordPage() {
                 <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 p-3">
                   <div className="relative w-full h-full">
                     <Image
-                      src="/images/logo (3).png"
-                      alt="آرین ای تی سی"
+                      src="/images/Logo.png"
+                      alt="لومینا"
                       fill
                       className="object-contain"
                     />
                   </div>
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-display font-bold mb-4">
-                  آرین ای تی سی
+                  لومینا
                 </h1>
                 <p className="text-xl lg:text-2xl font-light mb-8 opacity-90">
                   {image.title}
@@ -244,15 +313,15 @@ export default function ForgotPasswordPage() {
             <div className="w-20 h-20 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg p-3">
               <div className="relative w-full h-full">
                 <Image
-                  src="/images/logo (3).png"
-                  alt="آرین ای تی سی"
+                  src="/images/Logo.png"
+                  alt="لومینا"
                   fill
                   className="object-contain"
                 />
               </div>
             </div>
             <h2 className="text-3xl font-display font-bold text-neutral-800">
-              آرین ای تی سی
+              لومینا
             </h2>
             <p className="mt-2 text-neutral-600">
               محصولات مفید و اعتیادآور
@@ -262,16 +331,20 @@ export default function ForgotPasswordPage() {
           {/* Desktop Header */}
           <div className="text-center hidden lg:block">
             <h2 className="text-3xl font-display font-bold text-neutral-800">
-              فراموشی رمز عبور
+              {step === 'phone' && 'بازیابی رمز عبور'}
+              {step === 'otp' && 'تایید کد'}
+              {step === 'password' && 'رمز عبور جدید'}
             </h2>
             <p className="mt-2 text-neutral-600">
-              ایمیل خود را وارد کنید تا لینک بازیابی برایتان ارسال شود
+              {step === 'phone' && 'شماره تلفن خود را وارد کنید'}
+              {step === 'otp' && 'کد تایید ارسالی را وارد کنید'}
+              {step === 'password' && 'رمز عبور جدید خود را وارد کنید'}
             </p>
           </div>
 
           {/* Form */}
           <Card className="p-8 shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={step === 'phone' ? handleSendOTP : step === 'otp' ? handleVerifyOTP : handleResetPassword} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex">
@@ -283,25 +356,108 @@ export default function ForgotPasswordPage() {
               </div>
             )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
-                ایمیل
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError('');
-                }}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                  error ? 'border-red-300 bg-red-50' : 'border-neutral-300'
-                }`}
-                placeholder="example@email.com"
-              />
-            </div>
+            {step === 'phone' && (
+              <div>
+                <label htmlFor="phone_number" className="block text-sm font-medium text-neutral-700 mb-2">
+                  شماره تلفن
+                </label>
+                <input
+                  id="phone_number"
+                  name="phone_number"
+                  type="tel"
+                  value={formData.phone_number}
+                  onChange={(e) => {
+                    setFormData({...formData, phone_number: e.target.value});
+                    setError('');
+                  }}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+                    error ? 'border-red-300 bg-red-50' : 'border-neutral-300'
+                  }`}
+                  placeholder="09123456789"
+                  maxLength={11}
+                />
+              </div>
+            )}
+
+            {step === 'otp' && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800">
+                    کد تایید به شماره <span className="font-bold">{formData.phone_number}</span> ارسال شد.
+                  </p>
+                </div>
+                <div>
+                  <label htmlFor="otp_code" className="block text-sm font-medium text-neutral-700 mb-2">
+                    کد تایید
+                  </label>
+                  <input
+                    id="otp_code"
+                    name="otp_code"
+                    type="text"
+                    value={formData.otp_code}
+                    onChange={(e) => {
+                      setFormData({...formData, otp_code: e.target.value});
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-center text-2xl tracking-widest"
+                    placeholder="000000"
+                    maxLength={6}
+                  />
+                </div>
+                {otpTimer > 0 ? (
+                  <p className="text-sm text-neutral-600 text-center">
+                    ارسال مجدد در {Math.floor(otpTimer / 60)}:{(otpTimer % 60).toString().padStart(2, '0')}
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleSendOTP()}
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    ارسال مجدد کد
+                  </button>
+                )}
+              </div>
+            )}
+
+            {step === 'password' && (
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="new_password" className="block text-sm font-medium text-neutral-700 mb-2">
+                    رمز عبور جدید
+                  </label>
+                  <input
+                    id="new_password"
+                    name="new_password"
+                    type="password"
+                    value={formData.new_password}
+                    onChange={(e) => {
+                      setFormData({...formData, new_password: e.target.value});
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    placeholder="رمز عبور جدید"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="confirm_password" className="block text-sm font-medium text-neutral-700 mb-2">
+                    تکرار رمز عبور
+                  </label>
+                  <input
+                    id="confirm_password"
+                    name="confirm_password"
+                    type="password"
+                    value={formData.confirm_password}
+                    onChange={(e) => {
+                      setFormData({...formData, confirm_password: e.target.value});
+                      setError('');
+                    }}
+                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    placeholder="تکرار رمز عبور"
+                  />
+                </div>
+              </div>
+            )}
 
             <Button
               type="submit"
@@ -315,14 +471,13 @@ export default function ForgotPasswordPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  در حال ارسال...
+                  در حال پردازش...
                 </div>
               ) : (
                 <div className="flex items-center justify-center">
-                  <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  ارسال لینک بازیابی
+                  {step === 'phone' && 'ارسال کد تایید'}
+                  {step === 'otp' && 'تایید کد'}
+                  {step === 'password' && 'تغییر رمز عبور'}
                 </div>
               )}
             </Button>

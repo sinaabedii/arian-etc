@@ -1,310 +1,85 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { getProductBySlug, getAllProductSlugs } from '@/data/mockProducts';
-import { Review } from '@/types';
-import Gallery from './Gallery';
-import SpecTable from './SpecTable';
-import ReviewForm from './ReviewForm';
-import ConsultationForm from './ConsultationForm';
-import CTAButtons from './CTAButtons';
-import StarRating from '@/components/ui/StarRating';
+import { productService } from '@/lib/product-service';
+import type { ProductDetail } from '@/types/product';
+import ProductDetailClient from './ProductDetailClient';
 
 interface ProductPageProps {
-  params: {
-    slug: string;
-  };
+  params: { slug: string };
 }
 
-// Generate static params for all products
-export async function generateStaticParams() {
-  const slugs = getAllProductSlugs();
-  return slugs.map((slug) => ({
-    slug: slug,
-  }));
-}
-
-// Generate metadata for SEO
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const product = getProductBySlug(params.slug);
-  
-  if (!product) {
-    return {
-      title: 'Product Not Found',
-    };
-  }
-
-  const averageRating = product.reviews.length > 0 
-    ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
-    : 0;
-
+  const res = await productService.getProductDetail(params.slug);
+  if (!res.success || !res.data) return { title: 'محصول یافت نشد' };
+  const p = res.data;
   return {
-    title: `${product.title}`,
-    description: `${product.shortDesc} - قیمت: ${new Intl.NumberFormat('fa-IR').format(product.price)} تومان. امتیاز: ${averageRating.toFixed(1)} از 5`,
-    keywords: [
-      product.title,
-      ...product.tags,
-      product.category,
-      '  ',
-      'محصولات نظافتی',
-      'ضدعفونی کننده',
-      'خرید آنلاین'
-    ],
+    title: p.name,
+    description: p.short_description || p.description?.slice(0, 160),
     openGraph: {
-      title: product.title,
-      description: product.shortDesc,
-      type: 'website',
-      images: [
-        {
-          url: product.images[0],
-          width: 800,
-          height: 600,
-          alt: product.title,
-        },
-      ],
-      siteName: '  ',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: product.title,
-      description: product.shortDesc,
-      images: [product.images[0]],
-    },
-    alternates: {
-      canonical: `https://akandchimi.com/products/${params.slug}`,
+      title: p.name,
+      description: p.short_description || '',
+      images: p.images?.length
+        ? [{ url: p.images[0].image, width: 1200, height: 630, alt: p.images[0].alt_text || p.name }]
+        : [],
     },
   };
 }
 
-const ProductDetailPage: React.FC<ProductPageProps> = ({ params }) => {
-  const product = getProductBySlug(params.slug);
+const ProductDetailPage = async ({ params }: ProductPageProps) => {
+  const [detailRes, relatedRes] = await Promise.all([
+    productService.getProductDetail(params.slug),
+    productService.getRelatedProducts(params.slug),
+  ]);
 
-  if (!product) {
-    notFound();
+  if (!detailRes.success || !detailRes.data) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-8">
+        <div className="max-w-md mx-auto text-center bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-neutral-200 p-12">
+          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="text-5xl">😕</div>
+          </div>
+          <h1 className="text-3xl font-black text-neutral-900 mb-3">محصول یافت نشد</h1>
+          <p className="text-neutral-600 mb-8 leading-relaxed">ممکن است اتصال به سرور موقتاً دچار مشکل شده باشد یا محصول مورد نظر وجود نداشته باشد.</p>
+          <Link 
+            href="/products" 
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-600 to-blue-600 hover:from-primary-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            بازگشت به محصولات
+          </Link>
+        </div>
+      </div>
+    );
   }
 
-  // Calculate average rating
-  const averageRating = product.reviews.length > 0 
-    ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
-    : 0;
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fa-IR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  // JSON-LD Structured Data for Product
-  const productStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.title,
-    description: product.shortDesc,
-    image: product.images,
-    brand: {
-      '@type': 'Brand',
-      name: '  ',
-    },
-    manufacturer: {
-      '@type': 'Organization',
-      name: '  ',
-    },
-    category: product.category,
-    offers: {
-      '@type': 'Offer',
-      url: `https://akandchimi.com/products/${params.slug}`,
-      priceCurrency: 'IRR',
-      price: product.price,
-      availability: 'https://schema.org/InStock',
-      seller: {
-        '@type': 'Organization',
-        name: '  ',
-      },
-    },
-    aggregateRating: product.reviews.length > 0 ? {
-      '@type': 'AggregateRating',
-      ratingValue: averageRating.toFixed(1),
-      reviewCount: product.reviews.length,
-      bestRating: 5,
-      worstRating: 1,
-    } : undefined,
-    review: product.reviews.map(review => ({
-      '@type': 'Review',
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: review.rating,
-        bestRating: 5,
-        worstRating: 1,
-      },
-      author: {
-        '@type': 'Person',
-        name: review.name,
-      },
-      reviewBody: review.comment,
-      datePublished: review.date,
-    })),
-  };
-
-  // All interactive CTAs are handled in the client-only CTAButtons component
+  const product: ProductDetail = detailRes.data as ProductDetail;
+  const related = relatedRes.success && relatedRes.data ? relatedRes.data : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData) }}
-      />
+    <>
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white/90 backdrop-blur-xl border-b border-neutral-200/50 sticky top-0 z-40 shadow-sm">
         <div className="container-max section-padding py-4">
-          <nav className="flex items-center space-x-2 text-sm" aria-label="Breadcrumb">
-            <Link href="/" className="text-gray-500 hover:text-primary-500 transition-colors">
-              Home
+          <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
+            <Link href="/" className="text-neutral-600 hover:text-primary-600 transition-colors font-medium flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              خانه
             </Link>
-            <span className="text-gray-400">/</span>
-            <Link href="/products" className="text-gray-500 hover:text-primary-500 transition-colors">
-              Products
-            </Link>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900 font-medium">{product.title}</span>
+            <span className="text-neutral-300">/</span>
+            <Link href="/products" className="text-neutral-600 hover:text-primary-600 transition-colors font-medium">محصولات</Link>
+            <span className="text-neutral-300">/</span>
+            <span className="text-neutral-900 font-bold truncate">{product.name}</span>
           </nav>
         </div>
       </div>
 
-      <div className="container-max section-padding py-8 lg:py-12">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-12">
-          {/* Left Column - Gallery */}
-          <div>
-            <Gallery images={product.images} title={product.title} />
-          </div>
-
-          {/* Right Column - Product Info */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                {product.title}
-              </h1>
-              <p className="text-lg text-gray-600 mb-4">
-                {product.shortDesc}
-              </p>
-              
-              {/* Rating */}
-              <div className="flex items-center space-x-4 mb-6">
-                <StarRating rating={averageRating} size="lg" />
-                <span className="text-sm text-gray-500">
-                  ({product.reviews.length} reviews)
-                </span>
-              </div>
-
-              {/* Category & Tags */}
-              <div className="flex flex-wrap items-center gap-2 mb-6">
-                <span className="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {product.category}
-                </span>
-                {product.tags.map((tag, index) => (
-                  <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <CTAButtons catalogPdfUrl={product.catalogPdfUrl} />
-          </div>
-        </div>
-
-        {/* Video Demo */}
-        {product.videoUrl && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Product Demo Video</h2>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <div className="relative aspect-video bg-gray-100 rounded-xl overflow-hidden">
-                <iframe
-                  src={product.videoUrl}
-                  title={`${product.title} Demo Video`}
-                  className="absolute inset-0 w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Product Description */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Product Description</h2>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div 
-              className="prose prose-gray max-w-none"
-              dangerouslySetInnerHTML={{ __html: product.longDesc }}
-            />
-          </div>
-        </div>
-
-        {/* Specifications */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Technical Specifications</h2>
-          <SpecTable specs={product.specs} />
-        </div>
-
-        {/* Reviews Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Customer Reviews ({product.reviews.length})
-          </h2>
-          
-          {/* Reviews List */}
-          {product.reviews.length > 0 ? (
-            <div className="space-y-6 mb-8">
-              {product.reviews.map((review: Review) => (
-                <div key={review.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex items-start space-x-4">
-                    {review.avatar && (
-                      <Image
-                        src={review.avatar}
-                        alt={review.name}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900">{review.name}</h4>
-                        <time className="text-sm text-gray-500">
-                          {formatDate(review.date)}
-                        </time>
-                      </div>
-                      <StarRating rating={review.rating} size="sm" className="mb-3" />
-                      <p className="text-gray-700 leading-relaxed">{review.comment}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center mb-8">
-              <p className="text-gray-500">No reviews have been submitted for this product yet.</p>
-            </div>
-          )}
-
-          {/* Add Review Form */}
-          <ReviewForm />
-        </div>
-
-        {/* Consultation Form */}
-        <div className="mb-12">
-          <ConsultationForm productTitle={product.title} />
-        </div>
-      </div>
-    </div>
+      <ProductDetailClient product={product} related={related} />
+    </>
   );
 };
 

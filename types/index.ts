@@ -102,3 +102,6 @@ export interface ReviewFormData {
   rating: number;
   comment: string;
 }
+
+// Re-export payment types
+export * from './payment';

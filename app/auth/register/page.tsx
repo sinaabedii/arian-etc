@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { authService } from '@/lib/auth-service';
+import { TokenManager } from '@/lib/token-manager';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 
@@ -30,20 +32,24 @@ const backgroundImages = [
 export default function RegisterPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const [step, setStep] = useState<'form' | 'otp'>('form');
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    national_id: '',
+    name: '',
     email: '',
-    phone: '',
+    phone_number: '',
     password: '',
-    confirmPassword: '',
+    confirm_password: '',
+    otp_code: '',
     acceptTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
 
   // Auto-slide background images
   useEffect(() => {
@@ -52,6 +58,14 @@ export default function RegisterPage() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // OTP timer countdown
+  useEffect(() => {
+    if (otpTimer > 0) {
+      const timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [otpTimer]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -69,12 +83,14 @@ export default function RegisterPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'نام الزامی است';
+    if (!formData.national_id) {
+      newErrors.national_id = 'کد ملی الزامی است';
+    } else if (!/^\d{10}$/.test(formData.national_id)) {
+      newErrors.national_id = 'کد ملی باید 10 رقم باشد';
     }
 
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'نام خانوادگی الزامی است';
+    if (!formData.name.trim()) {
+      newErrors.name = 'نام و نام خانوادگی الزامی است';
     }
 
     if (!formData.email) {
@@ -83,10 +99,10 @@ export default function RegisterPage() {
       newErrors.email = 'فرمت ایمیل صحیح نیست';
     }
 
-    if (!formData.phone) {
-      newErrors.phone = 'شماره تلفن الزامی است';
-    } else if (!/^09\d{9}$/.test(formData.phone)) {
-      newErrors.phone = 'شماره تلفن معتبر نیست';
+    if (!formData.phone_number) {
+      newErrors.phone_number = 'شماره تلفن الزامی است';
+    } else if (!/^09\d{9}$/.test(formData.phone_number)) {
+      newErrors.phone_number = 'شماره تلفن معتبر نیست (مثال: 09123456789)';
     }
 
     if (!formData.password) {
@@ -95,10 +111,10 @@ export default function RegisterPage() {
       newErrors.password = 'رمز عبور باید حداقل 8 کاراکتر باشد';
     }
 
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'تکرار رمز عبور الزامی است';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'رمز عبور و تکرار آن یکسان نیستند';
+    if (!formData.confirm_password) {
+      newErrors.confirm_password = 'تکرار رمز عبور الزامی است';
+    } else if (formData.password !== formData.confirm_password) {
+      newErrors.confirm_password = 'رمز عبور و تکرار آن یکسان نیستند';
     }
 
     if (!formData.acceptTerms) {
@@ -109,29 +125,88 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleSendOTP = async () => {
+    // Validate phone number first
+    if (!formData.phone_number) {
+      setErrors({ phone_number: 'شماره تلفن الزامی است' });
+      return;
+    }
+    if (!/^09\d{9}$/.test(formData.phone_number)) {
+      setErrors({ phone_number: 'شماره تلفن معتبر نیست' });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await authService.sendOTP({
+        phone_number: formData.phone_number,
+        purpose: 1, // 1 for registration
+      });
+
+      if (response.success) {
+        setOtpSent(true);
+        setOtpTimer(120); // 2 minutes
+        setStep('otp');
+        setErrors({});
+      } else {
+        setErrors({ general: response.error?.message || 'خطا در ارسال کد تایید' });
+      }
+    } catch (error: any) {
+      setErrors({ general: error.message || 'خطا در ارسال کد تایید' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    if (step === 'form') {
+      // Validate form and send OTP
+      if (!validateForm()) return;
+      await handleSendOTP();
+      return;
+    }
+    
+    // Step 2: Submit registration with OTP
+    if (!formData.otp_code) {
+      setErrors({ otp_code: 'کد تایید الزامی است' });
+      return;
+    }
 
     setIsLoading(true);
     
     try {
-      // Mock registration - در واقعیت باید با API ارتباط برقرار کنید
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mockUser = {
-        id: '1',
-        name: `${formData.firstName} ${formData.lastName}`,
+      const response = await authService.register({
+        national_id: formData.national_id,
+        name: formData.name,
+        phone_number: formData.phone_number,
+        otp_code: formData.otp_code,
+        password: formData.password,
+        confirm_password: formData.confirm_password,
         email: formData.email,
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
-        role: 'customer' as const
-      };
+      });
       
-      login(mockUser, false);
-      router.push('/dashboard');
-    } catch (error) {
-      setErrors({ general: 'خطا در ثبت نام. لطفاً دوباره تلاش کنید.' });
+      if (response.success && response.data) {
+        TokenManager.setAccessToken(response.data.access, false);
+        TokenManager.setRefreshToken(response.data.refresh, false);
+        
+        const user = response.data.user || {
+          id: formData.national_id,
+          name: formData.name,
+          email: formData.email,
+          national_id: formData.national_id,
+          phone_number: formData.phone_number,
+          role: 'customer' as const
+        };
+        
+        login(user, false);
+        router.push('/dashboard');
+      } else {
+        setErrors({ general: response.error?.message || 'خطا در ثبت نام. لطفاً دوباره تلاش کنید.' });
+      }
+    } catch (error: any) {
+      setErrors({ general: error.message || 'خطا در ثبت نام. لطفاً دوباره تلاش کنید.' });
     } finally {
       setIsLoading(false);
     }
@@ -238,48 +313,51 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-2">
-                    نام
-                  </label>
-                  <input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                      errors.firstName ? 'border-red-300 bg-red-50' : 'border-neutral-300'
-                    }`}
-                    placeholder="نام"
-                  />
-                  {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-2">
-                    نام خانوادگی
-                  </label>
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                      errors.lastName ? 'border-red-300 bg-red-50' : 'border-neutral-300'
-                    }`}
-                    placeholder="نام خانوادگی"
-                  />
-                  {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
-                  )}
-                </div>
+              {step === 'form' && (
+                <>
+              {/* National ID */}
+              <div>
+                <label htmlFor="national_id" className="block text-sm font-medium text-neutral-700 mb-2">
+                  کد ملی
+                </label>
+                <input
+                  id="national_id"
+                  name="national_id"
+                  type="text"
+                  value={formData.national_id}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+                    errors.national_id ? 'border-red-300 bg-red-50' : 'border-neutral-300'
+                  }`}
+                  placeholder="کد ملی 10 رقمی"
+                  maxLength={10}
+                />
+                {errors.national_id && (
+                  <p className="mt-1 text-sm text-red-600">{errors.national_id}</p>
+                )}
               </div>
+
+              {/* Full Name */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-2">
+                  نام و نام خانوادگی
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
+                    errors.name ? 'border-red-300 bg-red-50' : 'border-neutral-300'
+                  }`}
+                  placeholder="نام و نام خانوادگی"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                )}
+              </div>
+              </>)}
 
               {/* Email */}
               <div>
@@ -302,27 +380,33 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {step === 'form' && (
+              <>
               {/* Phone */}
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-neutral-700 mb-2">
+                <label htmlFor="phone_number" className="block text-sm font-medium text-neutral-700 mb-2">
                   شماره تلفن
                 </label>
                 <input
-                  id="phone"
-                  name="phone"
+                  id="phone_number"
+                  name="phone_number"
                   type="tel"
-                  value={formData.phone}
+                  value={formData.phone_number}
                   onChange={handleChange}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                    errors.phone ? 'border-red-300 bg-red-50' : 'border-neutral-300'
+                    errors.phone_number ? 'border-red-300 bg-red-50' : 'border-neutral-300'
                   }`}
                   placeholder="09123456789"
+                  maxLength={11}
                 />
-                {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                {errors.phone_number && (
+                  <p className="mt-1 text-sm text-red-600">{errors.phone_number}</p>
                 )}
               </div>
+              </>)}
 
+              {step === 'form' && (
+              <>
               {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-2">
@@ -361,21 +445,20 @@ export default function RegisterPage() {
                   <p className="mt-1 text-sm text-red-600">{errors.password}</p>
                 )}
               </div>
-
               {/* Confirm Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-2">
+                <label htmlFor="confirm_password" className="block text-sm font-medium text-neutral-700 mb-2">
                   تکرار رمز عبور
                 </label>
                 <div className="relative">
                   <input
-                    id="confirmPassword"
-                    name="confirmPassword"
+                    id="confirm_password"
+                    name="confirm_password"
                     type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
+                    value={formData.confirm_password}
                     onChange={handleChange}
                     className={`w-full px-4 py-3 pl-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                      errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-neutral-300'
+                      errors.confirm_password ? 'border-red-300 bg-red-50' : 'border-neutral-300'
                     }`}
                     placeholder="تکرار رمز عبور"
                   />
@@ -396,8 +479,8 @@ export default function RegisterPage() {
                     )}
                   </button>
                 </div>
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                {errors.confirm_password && (
+                  <p className="mt-1 text-sm text-red-600">{errors.confirm_password}</p>
                 )}
               </div>
 
@@ -427,6 +510,62 @@ export default function RegisterPage() {
                   <p className="mt-1 text-sm text-red-600">{errors.acceptTerms}</p>
                 )}
               </div>
+              </>)}
+
+              {/* OTP Step */}
+              {step === 'otp' && (
+                <div className="space-y-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-800">
+                      کد تایید به شماره <span className="font-bold">{formData.phone_number}</span> ارسال شد.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="otp_code" className="block text-sm font-medium text-neutral-700 mb-2">
+                      کد تایید
+                    </label>
+                    <input
+                      id="otp_code"
+                      name="otp_code"
+                      type="text"
+                      value={formData.otp_code}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-center text-2xl tracking-widest ${
+                        errors.otp_code ? 'border-red-300 bg-red-50' : 'border-neutral-300'
+                      }`}
+                      placeholder="000000"
+                      maxLength={6}
+                    />
+                    {errors.otp_code && (
+                      <p className="mt-1 text-sm text-red-600">{errors.otp_code}</p>
+                    )}
+                  </div>
+
+                  {otpTimer > 0 ? (
+                    <p className="text-sm text-neutral-600 text-center">
+                      ارسال مجدد در {Math.floor(otpTimer / 60)}:{(otpTimer % 60).toString().padStart(2, '0')}
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSendOTP}
+                      disabled={isLoading}
+                      className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                    >
+                      ارسال مجدد کد
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setStep('form')}
+                    className="text-sm text-neutral-600 hover:text-neutral-800"
+                  >
+                    ← بازگشت به فرم
+                  </button>
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -440,14 +579,25 @@ export default function RegisterPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    در حال ثبت نام...
+                    {step === 'form' ? 'در حال ارسال کد...' : 'در حال ثبت نام...'}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center">
-                    <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                    ایجاد حساب کاربری
+                    {step === 'form' ? (
+                      <>
+                        <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        ارسال کد تایید
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        ایجاد حساب کاربری
+                      </>
+                    )}
                   </div>
                 )}
               </Button>

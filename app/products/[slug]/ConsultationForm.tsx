@@ -28,8 +28,6 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({ productTitle, onSub
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    console.log('Consultation Request:', { ...formData, product: productTitle });
-    
     if (onSubmit) {
       onSubmit(formData);
     }

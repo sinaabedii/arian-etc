@@ -1,9 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { wishlistService } from '@/lib/wishlist-service';
+import type { WishlistItem as ApiWishlistItem } from '@/types/wishlist';
 
 export interface WishlistItem {
+  // ID of wishlist entry from backend (stringified)
   id: string;
+  // Product ID for convenience when matching
+  productId: number;
   name: string;
   price: number;
   image: string;
@@ -14,16 +19,22 @@ export interface WishlistItem {
 interface WishlistContextType {
   items: WishlistItem[];
   addToWishlist: (item: WishlistItem) => void;
+  addFromApiItem: (apiItem: ApiWishlistItem) => void;
   removeFromWishlist: (id: string) => void;
   isInWishlist: (id: string) => boolean;
   clearWishlist: () => void;
   itemCount: number;
+  loading: boolean;
+  error: string | null;
+  refreshFromServer: () => Promise<void>;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<WishlistItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Load wishlist from localStorage on mount
   useEffect(() => {
@@ -36,6 +47,31 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.error('Error loading wishlist from localStorage:', error);
       }
     }
+  }, []);
+
+  const refreshFromServer = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await wishlistService.getWishlist(1, 50);
+      if (res.success && res.data) {
+        const mapped: WishlistItem[] = res.data.results.map(mapApiItemToLocal);
+        setItems(mapped);
+      } else {
+        console.error('Wishlist fetch failed:', res.error?.message, res.error?.errors);
+        setError(res.error?.message || 'خطا در دریافت لیست علاقه‌مندی‌ها');
+      }
+    } catch (e: any) {
+      console.error('Wishlist fetch exception:', e);
+      setError('خطا در برقراری ارتباط با سرور');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Also try to hydrate from server if user is authenticated (token handled in service)
+  useEffect(() => {
+    refreshFromServer();
   }, []);
 
   // Save wishlist to localStorage whenever it changes
@@ -52,8 +88,37 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-  const removeFromWishlist = (id: string) => {
+  const mapApiItemToLocal = (apiItem: ApiWishlistItem): WishlistItem => {
+    const priceStr = apiItem.product_discount_price ?? apiItem.product_price ?? '0';
+    const price = parseFloat(String(priceStr)) || 0;
+    return {
+      id: String(apiItem.id),
+      productId: apiItem.product,
+      name: apiItem.product_name,
+      price,
+      image: apiItem.product_image || '',
+      category: '',
+      slug: apiItem.product_slug,
+    };
+  };
+
+  const addFromApiItem = (apiItem: ApiWishlistItem) => {
+    const item = mapApiItemToLocal(apiItem);
+    addToWishlist(item);
+  };
+
+  const removeFromWishlist = async (id: string) => {
+    // Optimistic update
     setItems(prev => prev.filter(item => item.id !== id));
+    const numericId = Number(id);
+    if (!Number.isNaN(numericId)) {
+      try {
+        await wishlistService.removeFromWishlist(numericId);
+      } catch (e) {
+        // If server fails, we won't rollback for simplicity
+        console.error('Failed to remove wishlist item on server:', e);
+      }
+    }
   };
 
   const isInWishlist = (id: string): boolean => {
@@ -69,10 +134,14 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       value={{
         items,
         addToWishlist,
+        addFromApiItem,
         removeFromWishlist,
         isInWishlist,
         clearWishlist,
         itemCount: items.length,
+        loading,
+        error,
+        refreshFromServer,
       }}
     >
       {children}
